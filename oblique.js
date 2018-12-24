@@ -108,13 +108,12 @@ function Wave(x, y, ceilingHeight, color, stroke, radius, total, collection, two
 
         for (i = 0; i < 2; i++) {
           let name = names[i];
-		console.log(ret.radius,ret.radius+4);
-          ret[name] = two.makeArcSegment(ret.locs[name].x, ret.locs[name].y, ret.radius + 4, ret.radius, ret.locs[name].angles[0], ret.locs[name].angles[1]);
+          ret[name] = two.makeArcSegment(ret.locs[name].x, ret.locs[name].y, Math.max(ret.radius + 4, 0), Math.max(ret.radius, 0), ret.locs[name].angles[0], ret.locs[name].angles[1]);
           ret[name].fill = ret.color;
           ret[name].stroke = ret.stroke;
         }
 
-        ret.container.add(ret.wave).add(ret.reflection).add(ret.ceiling);
+        ret.container.add(ret.source).add(ret.reflection).add(ret.ceiling);
         ret.collection.add(ret.container);
         ret.radius += 2;
         return ret.container;
@@ -149,12 +148,12 @@ function Wave(x, y, ceilingHeight, color, stroke, radius, total, collection, two
 
 var waveList = [];
 var colorList = ["#FF0000", "#00FF00", "#0000FF"];
-for (i = 0; i < 3; i++) {
+for (let i = 0; i < 3; i++) {
   waveList.push(Wave(txloc.x, txloc.y, 100 * (2 - i), colorList[i], colorList[i], -100 * i, 2000, allWaves, two));
 }
 
 function doRadio() {
-  for (i = 0; i < 3; i++) {
-    console.log(waveList[i].update());
+  for (let i = 0; i < 3; i++) {
+    waveList[i].update();
   }
 }
