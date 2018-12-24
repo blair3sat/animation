@@ -59,30 +59,28 @@ signalCover.translation.set(window.innerWidth / 2, REFLECT / 2);
 signalCover.fill = "#FFFFFF";
 signalCover.noStroke();
 var cs = two.makeCubesat(900, 100);
-var or = 4;
-var don = false;
+var or = 4; //Outer radius of the radio wave - the distance from the center. The inner radius is four pixels inwards from this.
 var rotation = Math.PI * 85 / 100;
 var signalUp = undefined;
 var signalDown = undefined;
 everyFrame();
 
 
-two.bind("update", everyFrame).play();
+two.bind("update", everyFrame).play(); //Runs the animation--everyFrame updates it every frame.
 
-function everyFrame(t, i) {
-  signalUp = updateSig(undefined, signalUp);
+function everyFrame() { //This runs every time Two.JS updates the frame.
+  signalUp = updateSig(undefined, signalUp, txloc);
   signalDown = updateSig([Math.PI * 0.4, Math.PI * 0.9], signalDown, reflection);
+  or += 2;
   allSignals.add(signalUp).add(signalDown);
 }
 
-function updateSig(theInfo = [Math.PI * 1.1, Math.PI * 1.6], sigUp, loc = txloc) {
+function updateSig(theInfo = [Math.PI * 1.1, Math.PI * 1.6], sig, loc, color = "#000000") {
   if (or < 1700) {
-    if (don) or += 2;
-    don = !don;
-    if (sigUp) allSignals.remove(sigUp);
-    sigUp = two.makeArcSegment(loc.x, loc.y, or, or - 4, theInfo[0], theInfo[1]);
-    sigUp.fill = "#000000";
-    sigUp.stroke = sigUp.fill;
+    if (sig) allSignals.remove(sig);
+    sig = two.makeArcSegment(loc.x, loc.y, or, or - 4, theInfo[0], theInfo[1]);
+    sig.fill = color;
+    sig.stroke = sig.fill;
   }
-  return sigUp;
+  return sig;
 }
