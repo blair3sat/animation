@@ -70,12 +70,12 @@ everyFrame();
 two.bind("update", everyFrame).play();
 
 function everyFrame(t, i) {
-  signalUp = updateSig(undefined, undefined, undefined, signalUp);
-  signalDown = updateSig(undefined, undefined, [Math.PI * 0.4, Math.PI * 0.9], signalDown, reflection);
+  signalUp = updateSig(undefined, signalUp);
+  signalDown = updateSig([Math.PI * 0.4, Math.PI * 0.9], signalDown, reflection);
   allSignals.add(signalUp).add(signalDown);
 }
 
-function updateSig(totFrames, info, theInfo = [Math.PI * 1.1, Math.PI * 1.6], sigUp, loc = txloc) {
+function updateSig(theInfo = [Math.PI * 1.1, Math.PI * 1.6], sigUp, loc = txloc) {
   if (or < 1700) {
     if (don) or += 2;
     don = !don;
