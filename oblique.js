@@ -53,34 +53,108 @@ var reflection = {
 };
 var tx = two.makeIonosonde(txloc.x, txloc.y);
 var rx = two.makeIonosonde(rxloc.x, rxloc.y);
-var allSignals = two.makeGroup();
-var signalCover = two.makeRectangle(0, 0, window.innerWidth, REFLECT);
-signalCover.translation.set(window.innerWidth / 2, REFLECT / 2);
-signalCover.fill = "#FFFFFF";
-signalCover.noStroke();
+var allWaves = two.makeGroup();
 var cs = two.makeCubesat(900, 100);
 var or = 4; //Outer radius of the radio wave - the distance from the center. The inner radius is four pixels inwards from this.
 var rotation = Math.PI * 85 / 100;
 var signalUp = undefined;
 var signalDown = undefined;
-everyFrame();
+//everyFrame();
 
 
-two.bind("update", everyFrame).play(); //Runs the animation--everyFrame updates it every frame.
+two.bind("update", doRadio).play();
 
 function everyFrame() { //This runs every time Two.JS updates the frame.
-  signalUp = updateSig(undefined, signalUp, txloc);
-  signalDown = updateSig([Math.PI * 0.4, Math.PI * 0.9], signalDown, reflection);
+  signalUp = updateWave(undefined, signalUp, txloc);
+  signalDown = updateWave([Math.PI * 0.4, Math.PI * 0.9], signalDown, reflection);
   or += 2;
   allSignals.add(signalUp).add(signalDown);
 }
 
-function updateSig(theInfo = [Math.PI * 1.1, Math.PI * 1.6], sig, loc, color = "#000000") {
+function updateWave(theInfo = [Math.PI * 1.1, Math.PI * 1.6], waveInfo, loc, color = "#000000") {
   if (or < 1700) {
-    if (sig) allSignals.remove(sig);
+    if (waveInfo !== undefined) allSignals.remove(waveInfo);
+    waveInfo = two.makeGroup();
+    var signalCover = two.makeRectangle(0, 0, window.innerWidth, REFLECT);
+    signalCover.translation.set(window.innerWidth / 2, REFLECT / 2);
+    signalCover.fill = "#FFFFFF";
+    signalCover.noStroke();
+    waveInfo.cover = signalCover;
     sig = two.makeArcSegment(loc.x, loc.y, or, or - 4, theInfo[0], theInfo[1]);
     sig.fill = color;
     sig.stroke = sig.fill;
+    waveInfo.sig = sig;
   }
   return sig;
+}
+//New stuff
+function Wave(x, y, ceilingHeight, color, stroke, radius, total, collection, two) {
+  let names = ["source", "reflection"];
+  let ret = {
+    radius: radius,
+    total: total,
+    color: color,
+    stroke: stroke,
+    update: () => {
+      if (ret.radius < ret.total) {
+        if (ret.container !== undefined) ret.collection.remove(ret.container);
+        ret.container = two.makeGroup();
+
+        if (ret.ceiling === undefined) {
+          ret.ceiling = two.makeRectangle(window.innerWidth / 2, ceilingHeight / 2, window.innerWidth, ceilingHeight);
+          ret.ceiling.fill = "#FFFFFF";
+          ret.ceiling.noStroke();
+        }
+
+        for (i = 0; i < 2; i++) {
+          let name = names[i];
+		console.log(ret.radius,ret.radius+4);
+          ret[name] = two.makeArcSegment(ret.locs[name].x, ret.locs[name].y, ret.radius + 4, ret.radius, ret.locs[name].angles[0], ret.locs[name].angles[1]);
+          ret[name].fill = ret.color;
+          ret[name].stroke = ret.stroke;
+        }
+
+        ret.container.add(ret.wave).add(ret.reflection).add(ret.ceiling);
+        ret.collection.add(ret.container);
+        ret.radius += 2;
+        return ret.container;
+      } else {
+        return [ret.total, ret.radius]
+      }
+    },
+    container: undefined,
+    collection: collection,
+    ceiling: undefined,
+    wave: undefined,
+    reflection: undefined,
+    locs: {
+      ceiling: {
+        height: ceilingHeight
+      },
+      source: {
+        angles: [Math.PI * 1.1, Math.PI * 1.6],
+        x: x,
+        y: y
+      },
+      reflection: {
+        angles: [Math.PI * 0.4, Math.PI * 0.9],
+        x: x,
+        y: 2 * ceilingHeight - y
+      }
+    }
+  };
+  ret.update();
+  return ret;
+}
+
+var waveList = [];
+var colorList = ["#FF0000", "#00FF00", "#0000FF"];
+for (i = 0; i < 3; i++) {
+  waveList.push(Wave(txloc.x, txloc.y, 100 * (2 - i), colorList[i], colorList[i], -100 * i, 2000, allWaves, two));
+}
+
+function doRadio() {
+  for (i = 0; i < 3; i++) {
+    console.log(waveList[i].update());
+  }
 }
