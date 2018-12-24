@@ -35,10 +35,12 @@ two.makeIonosonde = function(x, y) {
   ionosonde.add(ionosonde.base).add(ionosonde.circle);
   return ionosonde;
 }
+//Make Earth
 var earth = two.makeCircle(window.innerWidth / 2, 5000, 4500);
 earth.fill = '#AAAA00';
 earth.stroke = 'green';
 earth.lineWidth = 10;
+//Calculate ionosonde locations
 var txloc = {
   x: window.innerWidth / 2 + 4500 * Math.cos(Math.PI * 17 / 36),
   y: 5000 - 4500 * Math.sin(Math.PI * 17 / 36)
@@ -51,43 +53,42 @@ var reflection = {
   x: txloc.x,
   y: 2 * REFLECT - txloc.y
 };
+//Make ionosondes
 var tx = two.makeIonosonde(txloc.x, txloc.y);
 var rx = two.makeIonosonde(rxloc.x, rxloc.y);
+//Make the 'wave layer' and other useful stuff
 var allWaves = two.makeGroup();
+var waveList = [];
+var colorList = ["#FF0000", "#00FF00", "#0000FF"];
+//Make the cubesat above the 'wave layer'
 var cs = two.makeCubesat(900, 100);
 var or = 4; //Outer radius of the radio wave - the distance from the center. The inner radius is four pixels inwards from this.
 var rotation = Math.PI * 85 / 100;
-var signalUp = undefined;
-var signalDown = undefined;
-//everyFrame();
-
 
 two.bind("update", doRadio).play();
 
-function everyFrame() { //This runs every time Two.JS updates the frame.
-  signalUp = updateWave(undefined, signalUp, txloc);
-  signalDown = updateWave([Math.PI * 0.4, Math.PI * 0.9], signalDown, reflection);
-  or += 2;
-  allSignals.add(signalUp).add(signalDown);
+for (let i = 0; i < 3; i++) {
+  waveList.push(Wave(txloc.x, txloc.y, 100 * (2 - i), colorList[i], colorList[i], -100 * i, 2000, allWaves, two));
 }
 
-function updateWave(theInfo = [Math.PI * 1.1, Math.PI * 1.6], waveInfo, loc, color = "#000000") {
-  if (or < 1700) {
-    if (waveInfo !== undefined) allSignals.remove(waveInfo);
-    waveInfo = two.makeGroup();
-    var signalCover = two.makeRectangle(0, 0, window.innerWidth, REFLECT);
-    signalCover.translation.set(window.innerWidth / 2, REFLECT / 2);
-    signalCover.fill = "#FFFFFF";
-    signalCover.noStroke();
-    waveInfo.cover = signalCover;
-    sig = two.makeArcSegment(loc.x, loc.y, or, or - 4, theInfo[0], theInfo[1]);
-    sig.fill = color;
-    sig.stroke = sig.fill;
-    waveInfo.sig = sig;
+function doRadio() {
+  for (let i = 0; i < 3; i++) {
+    waveList[i].update();
   }
-  return sig;
 }
-//New stuff
+
+/**
+ * Makes a Wave object that reflects off of a given point in the ionosphere.
+ * @param {Int} x The x value of the wave's origin
+ * @param {Int} y The y value of the wave's origin
+ * @param {Int} ceilingHeight The distance from the top of the screen of the point where the radio wave reflects
+ * @param {String} color The color code of the Wave
+ * @param {String} stroke The color code of the Wave's border
+ * @param {Int} radius The starting radius of the Wave - Wave is only rendered when the radius is positive
+ * @param {Int} total The point at which to stop updating the Wave - once the radius reaches this number, updating stops
+ * @param {two.Group} collection The group in which to render the Wave
+ * @param {Object} two The local instance of Two.JS - included because this is a functional factory
+ * */
 function Wave(x, y, ceilingHeight, color, stroke, radius, total, collection, two) {
   let names = ["source", "reflection"];
   let ret = {
@@ -144,16 +145,4 @@ function Wave(x, y, ceilingHeight, color, stroke, radius, total, collection, two
   };
   ret.update();
   return ret;
-}
-
-var waveList = [];
-var colorList = ["#FF0000", "#00FF00", "#0000FF"];
-for (let i = 0; i < 3; i++) {
-  waveList.push(Wave(txloc.x, txloc.y, 100 * (2 - i), colorList[i], colorList[i], -100 * i, 2000, allWaves, two));
-}
-
-function doRadio() {
-  for (let i = 0; i < 3; i++) {
-    waveList[i].update();
-  }
 }
