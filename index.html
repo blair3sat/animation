@@ -21,11 +21,20 @@
 <body>
   <div id="two" onclick="if(!two.paused){two.pause();two.paused=true;}else{two.play();two.paused=false;}"></div>
   <script src="./two.js"></script>
-  <script>
-    const OBLIQUE = true; //If you want it to be oblique or not - false for monostatic
-    const TXANGLE = Math.PI * 19 / 36; //Where the transmitting ionosonde transmits from
-    const CSLOC = 900; //X position of CubeSat
-    const IRIS = true; //True if you want to show the iris in effect
+  <div style="position:absolute;left:25px;top:400px;">
+    <p>Iris: <span id="iris"></span>ctivated</p>
+    <p>Mode: <span id="oblique"></span></p>
+  </div>
+  <script defer>
+    let urlParams = new URLSearchParams(window.location.search);
+    const OBLIQUE = urlParams.get('oblique') != 'true'; //If you want it to be oblique or not - false for monostatic
+    let txangle = Number(urlParams.get('txangle'));
+    const TXANGLE = ![NaN, 0].includes(txangle) ? txangle : Math.PI * 17 / 36; //Where the transmitting ionosonde transmits from
+    let csloc = Number(urlParams.get('csloc'));
+    const CSLOC = ![NaN, 0].includes(csloc) ? csloc : 900; //X position of CubeSat
+    const IRIS = urlParams.get('iris') == 'true'; //True if you want to show the iris in effect
+    document.getElementById('iris').innerText = IRIS ? "A" : "Not a";
+    document.getElementById('oblique').innerText = OBLIQUE ? "Bistatic" : "Monostatic";
   </script>
   <script defer src="./oblique.js">
   </script>

@@ -60,12 +60,14 @@ var colorList = ["#FF0000", "#00FF00", "#0000FF"];
 var cs = two.makeCubesat(OBLIQUE ? CSLOC : txloc.x, 100);
 var or = 4; //Outer radius of the radio wave - the distance from the center. The inner radius is four pixels inwards from this.
 var rotation = Math.PI * 85 / 100;
-var text=two.makeText("Click to start.",two.width/2,50,{size:100});
+var start = two.makeText("Click to start.", two.width / 2, 50, {
+  size: 100
+});
 two.update();
-two.paused=true;
-two.remove(text);
+two.paused = true;
+two.remove(start);
 for (let i = 0; i < 3; i++) {
-  waveList.push(Wave(txloc.x, txloc.y, 100 * (2 - i), colorList[i], colorList[i], -100 * i, 1500, IRIS, 1.5, allWaves, two));
+  waveList.push(Wave(txloc.x, txloc.y, 100 * (2 - i), colorList[i], colorList[i], -100 * i, 2000, IRIS, 1.5, allWaves, two));
 }
 
 function doRadio() {
@@ -148,7 +150,7 @@ function Wave(x, y, ceilingHeight, color, stroke, radius, total, iris, refractio
         ret.radius += 2;
         return ret.container;
       } else {
-        //        ret.radius = 0;
+        ret.radius = 0;
         return [ret.total, ret.radius]
       }
     },
