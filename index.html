@@ -27,7 +27,7 @@
   </div>
   <script defer>
     let urlParams = new URLSearchParams(window.location.search);
-    const OBLIQUE = urlParams.get('oblique') != 'true'; //If you want it to be oblique or not - false for monostatic
+    const OBLIQUE = urlParams.get('oblique') != 'false'; //If you want it to be oblique or not - false for monostatic
     let txangle = Number(urlParams.get('txangle'));
     const TXANGLE = ![NaN, 0].includes(txangle) ? txangle : Math.PI * 17 / 36; //Where the transmitting ionosonde transmits from
     let csloc = Number(urlParams.get('csloc'));
