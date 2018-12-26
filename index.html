@@ -19,8 +19,14 @@
 </head>
 
 <body>
-  <div id="two"></div>
-  <script src="./two.min.js"></script>
+  <div id="two" onclick="if(!two.paused){two.pause();two.paused=true;}else{two.play();two.paused=false;}"></div>
+  <script src="./two.js"></script>
+  <script>
+    const OBLIQUE = false;
+    const TXANGLE = Math.PI / 2;
+    const CSLOC = 900;
+    const IRIS = true;
+  </script>
   <script defer src="./oblique.js">
   </script>
 </body>

@@ -1,7 +1,7 @@
 const REFLECT = 100;
 var two = new Two({
   fullscreen: true
-}).appendTo(document.body);
+}).appendTo(document.getElementById("two"));
 two.makeCubesat = function(x, y) {
   let cubesat = two.makeGroup();
   cubesat.center = two.makeRectangle(x, y, 15, 10);
@@ -36,39 +36,36 @@ two.makeIonosonde = function(x, y) {
   return ionosonde;
 }
 //Make Earth
-var earth = two.makeCircle(window.innerWidth / 2, 5000, 4500);
+var earth = two.makeCircle(two.width / 2, 5000, 4500);
 earth.fill = '#AAAA00';
 earth.stroke = 'green';
 earth.lineWidth = 10;
 //Calculate ionosonde locations
 var txloc = {
-  x: window.innerWidth / 2 + 4500 * Math.cos(Math.PI * 17 / 36),
-  y: 5000 - 4500 * Math.sin(Math.PI * 17 / 36)
+  x: two.width / 2 + 4500 * Math.cos(TXANGLE),
+  y: 5000 - 4500 * Math.sin(TXANGLE)
 };
 var rxloc = {
-  x: window.innerWidth / 2 + 4500 * Math.cos(Math.PI * 19 / 36),
-  y: 5000 - 4500 * Math.sin(Math.PI * 19 / 36)
-};
-var reflection = {
-  x: txloc.x,
-  y: 2 * REFLECT - txloc.y
+  x: two.width / 2 - 4500 * Math.cos(CSLOC),
+  y: txloc.y
 };
 //Make ionosondes
 var tx = two.makeIonosonde(txloc.x, txloc.y);
-var rx = two.makeIonosonde(rxloc.x, rxloc.y);
+if (OBLIQUE) var rx = two.makeIonosonde(rxloc.x, rxloc.y);
 //Make the 'wave layer' and other useful stuff
 var allWaves = two.makeGroup();
 var waveList = [];
 var colorList = ["#FF0000", "#00FF00", "#0000FF"];
 //Make the cubesat above the 'wave layer'
-var cs = two.makeCubesat(900, 100);
+var cs = two.makeCubesat(OBLIQUE ? CSLOC : txloc.x, 100);
 var or = 4; //Outer radius of the radio wave - the distance from the center. The inner radius is four pixels inwards from this.
 var rotation = Math.PI * 85 / 100;
-
-two.bind("update", doRadio).play();
-
+var text=two.makeText("Click to start.",two.width/2,50,{size:100});
+two.update();
+two.paused=true;
+two.remove(text);
 for (let i = 0; i < 3; i++) {
-  waveList.push(Wave(txloc.x, txloc.y, 100 * (2 - i), colorList[i], colorList[i], -100 * i, 2000, allWaves, two));
+  waveList.push(Wave(txloc.x, txloc.y, 100 * (2 - i), colorList[i], colorList[i], -100 * i, 1500, IRIS, 1.5, allWaves, two));
 }
 
 function doRadio() {
@@ -76,6 +73,7 @@ function doRadio() {
     waveList[i].update();
   }
 }
+two.bind("update", doRadio);
 
 /**
  * Makes a Wave object that reflects off of a given point in the ionosphere.
@@ -86,14 +84,17 @@ function doRadio() {
  * @param {String} stroke The color code of the Wave's border
  * @param {Int} radius The starting radius of the Wave - Wave is only rendered when the radius is positive
  * @param {Int} total The point at which to stop updating the Wave - once the radius reaches this number, updating stops
+ * @param {Boolean} iris If the wave is passing through the iris of the atmosphere.
  * @param {two.Group} collection The group in which to render the Wave
  * @param {Object} two The local instance of Two.JS - included because this is a functional factory
  * */
-function Wave(x, y, ceilingHeight, color, stroke, radius, total, collection, two) {
+function Wave(x, y, ceilingHeight, color, stroke, radius, total, iris, refraction, collection, two) {
   let names = ["source", "reflection"];
   let ret = {
     radius: radius,
+    refraction: refraction,
     total: total,
+    iris: iris,
     color: color,
     stroke: stroke,
     update: () => {
@@ -102,29 +103,59 @@ function Wave(x, y, ceilingHeight, color, stroke, radius, total, collection, two
         ret.container = two.makeGroup();
 
         if (ret.ceiling === undefined) {
-          ret.ceiling = two.makeRectangle(window.innerWidth / 2, ceilingHeight / 2, window.innerWidth, ceilingHeight);
-          ret.ceiling.fill = "#FFFFFF";
-          ret.ceiling.noStroke();
+          ret.ceiling = two.makeRectangle(two.width / 2, ceilingHeight / 2, two.width, ceilingHeight);
+        }
+        if (ret.floor === undefined) {
+          ret.floor = two.makeRectangle(two.width / 2, (ceilingHeight + two.height) / 2, two.width, two.height - ceilingHeight);
         }
 
         for (i = 0; i < 2; i++) {
           let name = names[i];
-          ret[name] = two.makeArcSegment(ret.locs[name].x, ret.locs[name].y, Math.max(ret.radius + 4, 0), Math.max(ret.radius, 0), ret.locs[name].angles[0], ret.locs[name].angles[1]);
-          ret[name].fill = ret.color;
-          ret[name].stroke = ret.stroke;
+          ret[name] = two.makeGroup();
+          let arc;
+          if (i == 0) {
+            arc = two.makeArcSegment(ret.locs[name].x, ret.locs[name].y, Math.max(ret.radius + 4, 0), Math.max(ret.radius, 0), ret.locs[name].angles[0], ret.locs[name].angles[1]);
+            arc.fill = ret.color;
+            arc.stroke = ret.stroke;
+            arc.opacity = 0.5;
+            ret[name].arc = arc;
+            ret[name].add(arc);
+          } else if (i == 1) {
+            let scale = ret.iris ? ret.refraction : -1;
+            arc = ret.source.arc.clone();
+            arc._matrix.manual = true;
+            arc._matrix
+              .identity()
+              .translate(ret.locs[name].x, ret.locs[name].y)
+              .scale(1, scale);
+            ret[name].arc = arc;
+            ret[name].add(arc);
+          }
         }
 
-        ret.container.add(ret.source).add(ret.reflection).add(ret.ceiling);
+
+        ret.container.add(ret.source).add(ret.reflection);
+        if (!ret.iris) {
+          ret.container.mask = ret.floor;
+          two.remove(ret.ceiling);
+        } else {
+          //two.remove(ret.ceiling);
+          ret.reflection.mask = ret.ceiling;
+          //two.remove(ret.floor);
+          ret.source.mask = ret.floor;
+        }
         ret.collection.add(ret.container);
         ret.radius += 2;
         return ret.container;
       } else {
+        //        ret.radius = 0;
         return [ret.total, ret.radius]
       }
     },
     container: undefined,
     collection: collection,
     ceiling: undefined,
+    floor: undefined,
     wave: undefined,
     reflection: undefined,
     locs: {
@@ -137,9 +168,8 @@ function Wave(x, y, ceilingHeight, color, stroke, radius, total, collection, two
         y: y
       },
       reflection: {
-        angles: [Math.PI * 0.4, Math.PI * 0.9],
         x: x,
-        y: 2 * ceilingHeight - y
+        y: iris ? ceilingHeight + (y - ceilingHeight) * refraction : 2 * ceilingHeight - y
       }
     }
   };
