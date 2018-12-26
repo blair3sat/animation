@@ -22,10 +22,10 @@
   <div id="two" onclick="if(!two.paused){two.pause();two.paused=true;}else{two.play();two.paused=false;}"></div>
   <script src="./two.js"></script>
   <script>
-    const OBLIQUE = false;
-    const TXANGLE = Math.PI / 2;
-    const CSLOC = 900;
-    const IRIS = true;
+    const OBLIQUE = true; //If you want it to be oblique or not - false for monostatic
+    const TXANGLE = Math.PI * 19 / 36; //Where the transmitting ionosonde transmits from
+    const CSLOC = 900; //X position of CubeSat
+    const IRIS = true; //True if you want to show the iris in effect
   </script>
   <script defer src="./oblique.js">
   </script>

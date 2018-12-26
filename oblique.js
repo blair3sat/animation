@@ -46,7 +46,7 @@ var txloc = {
   y: 5000 - 4500 * Math.sin(TXANGLE)
 };
 var rxloc = {
-  x: two.width / 2 - 4500 * Math.cos(CSLOC),
+  x: two.width / 2 - 4500 * Math.cos(TXANGLE),
   y: txloc.y
 };
 //Make ionosondes
