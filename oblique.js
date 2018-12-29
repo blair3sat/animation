@@ -104,7 +104,7 @@ function Wave(x, y, ceilingHeight, color, stroke, radius, total, iris, refractio
         if (ret.container !== undefined) ret.collection.remove(ret.container);
         ret.container = two.makeGroup();
 
-        if (ret.ceiling === undefined) {
+        if (ret.ceiling === undefined && ret.iris) {
           ret.ceiling = two.makeRectangle(two.width / 2, ceilingHeight / 2, two.width, ceilingHeight);
         }
         if (ret.floor === undefined) {
@@ -120,9 +120,7 @@ function Wave(x, y, ceilingHeight, color, stroke, radius, total, iris, refractio
             arc.fill = ret.color;
             arc.stroke = ret.stroke;
             arc.opacity = 0.5;
-            ret[name].arc = arc;
-            ret[name].add(arc);
-          } else if (i == 1) {
+          } else {
             let scale = ret.iris ? ret.refraction : -1;
             arc = ret.source.arc.clone();
             arc._matrix.manual = true;
@@ -130,9 +128,9 @@ function Wave(x, y, ceilingHeight, color, stroke, radius, total, iris, refractio
               .identity()
               .translate(ret.locs[name].x, ret.locs[name].y)
               .scale(1, scale);
-            ret[name].arc = arc;
-            ret[name].add(arc);
           }
+          ret[name].arc = arc;
+          ret[name].add(arc);
         }
 
 

@@ -1,5 +1,15 @@
 <!DOCTYPE html>
 <html>
+<!--
+	Radio mission animation - by Andrew Healey
+	Displays an animation of three example 'radio waves' of different frequencies interacting with the ionosphere. The red wave is the lowest frequency, the green a bit higher, and the blue is the highest frequency.
+	MODES
+	There are multiple query parameters that can be modified:
+	iris - boolean value, defaults to false
+	oblique - boolean value, defaults to true
+	csloc - numeric value, defaults to 900 (pixels from the very left of the screen)
+	txangle - numeric value, multiple of PI that represents the location of the ionosondes - ex: 17/36 would place the transmitting antenna 1/36th pi to the right ofthe center of the screen, and the receiving 1/36th to the left.
+	-->
 
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
@@ -14,6 +24,17 @@
       width: 500px;
       height: 500px;
     }
+
+    #headsup {
+      position: absolute;
+      left: 0px;
+      top: 0px;
+      border-color: black;
+      border-width: 2px;
+      border-style: none outset outset none;
+      padding: 10px;
+      background-color: #AAAAAA;
+    }
   </style>
 
 </head>
@@ -21,9 +42,9 @@
 <body>
   <div id="two" onclick="if(!two.paused){two.pause();two.paused=true;}else{two.play();two.paused=false;}"></div>
   <script src="./two.js"></script>
-  <div style="position:absolute;left:25px;top:400px;">
-    <p>Iris: <span id="iris"></span>ctivated</p>
-    <p>Mode: <span id="oblique"></span></p>
+  <div id="headsup">
+    <a id="i">Iris: <span id="iris"></span>ctivated</a><br>
+    <a id="o">Mode: <span id="oblique"></span>static</a>
   </div>
   <script defer>
     let urlParams = new URLSearchParams(window.location.search);
@@ -32,9 +53,26 @@
     const TXANGLE = ![NaN, 0].includes(txangle) ? txangle : Math.PI * 17 / 36; //Where the transmitting ionosonde transmits from
     let csloc = Number(urlParams.get('csloc'));
     const CSLOC = ![NaN, 0].includes(csloc) ? csloc : 900; //X position of CubeSat
-    const IRIS = urlParams.get('iris') == 'true'; //True if you want to show the iris in effect
+    const IRIS = urlParams.get('iris') == 'true'; //True if you want to show the iris in effect - the iris refracts the signal upward and doesn't reflect it downward
+    const I = document.getElementById('iris');
+    I.innerText = IRIS ? "A" : "Not a";
+    switchVal = (matched) => {
+      return {
+        "true": "false",
+        "false": "true"
+      }[matched];
+
+    }
+
+    function toggleParam(param, id, def) {
+      let init = window.location.href.replace(new RegExp(param + "=(true|false)", "g"), m => param + "=" + switchVal(m.replace(new RegExp(param + "=", "g"), "")));
+      if (!init.includes(param + "=")) init += "&" + param + "=" + !def;
+      document.getElementById(id).href = init;
+    }
+    document.getElementById('oblique').innerText = OBLIQUE ? "Bi" : "Mono";
+    toggleParam("oblique", "o", true);
     document.getElementById('iris').innerText = IRIS ? "A" : "Not a";
-    document.getElementById('oblique').innerText = OBLIQUE ? "Bistatic" : "Monostatic";
+    toggleParam("iris", "i", false)
   </script>
   <script defer src="./oblique.js">
   </script>
