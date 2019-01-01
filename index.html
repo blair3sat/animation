@@ -67,6 +67,7 @@
     function toggleParam(param, id, def) {
       let init = window.location.href.replace(new RegExp(param + "=(true|false)", "g"), m => param + "=" + switchVal(m.replace(new RegExp(param + "=", "g"), "")));
       if (!init.includes(param + "=")) init += "&" + param + "=" + !def;
+      init=init.replace(/\/&/g,"/?");
       document.getElementById(id).href = init;
     }
     document.getElementById('oblique').innerText = OBLIQUE ? "Bi" : "Mono";
