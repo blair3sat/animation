@@ -1,0 +1,128 @@
+[{
+        "name": "recursion_level",
+        "label": "Polygon Count",
+        "type": "integer",
+        "min": 1,
+        "max": 6,
+        "default": 5
+    },
+    {
+        "name": "elevation_scale",
+        "label": "Elevation Scale",
+        "type": "integer",
+        "min": 1,
+        "max": 800,
+        "default": 375
+    },
+    {
+        "name": "compute_vertex_normals",
+        "label": "Use Vertex Normals",
+        "type": "boolean",
+        "default": false
+    },
+    {
+        "name": "render_globe_interior",
+        "label": "Render Globe Interior",
+        "type": "boolean",
+        "default": false
+    },
+    {
+        "name": "triangle_coloring",
+        "label": "Triangle Coloring",
+        "type": "enum",
+        "default": "min",
+        "options": [{
+                "name": "max",
+                "localized": "Highest Vertex Color"
+            },
+            {
+                "name": "min",
+                "localized": "Lowest Vertex Color"
+            },
+            {
+                "name": "avg",
+                "localized": "Average Vertex Color"
+            },
+            {
+                "name": "all",
+                "localized": "All Vertex Colors (gradient)"
+            }
+        ]
+    },
+    {
+        "name": "color_gradient",
+        "label": "Color Gradient",
+        "type": "enum",
+        "default": "GMT_simple",
+        "options": [{
+                "name": "GMT_globe",
+                "localized": "Standard"
+            },
+            {
+                "name": "GMT_simple",
+                "localized": "Simple"
+            },
+            {
+                "name": "GMT_dem4",
+                "localized": "High Contrast"
+            },
+            {
+                "name": "GMT_sealand",
+                "localized": "Relief"
+            },
+            {
+                "name": "GMT_topo",
+                "localized": "Strange"
+            }
+        ]
+    },
+    {
+        "name": "material",
+        "label": "Material",
+        "type": "enum",
+        "default": "lambert",
+        "options": [{
+                "name": "lambert",
+                "localized": "Lambert"
+            },
+            {
+                "name": "standard",
+                "localized": "Standard"
+            },
+            {
+                "name": "basic",
+                "localized": "Basic"
+            }
+        ]
+    },
+    {
+        "name": "rotation",
+        "label": "Rotation",
+        "type": "boolean",
+        "default": false
+    },
+    {
+        "name": "ambient_light_intensity",
+        "label": "Ambient Light",
+        "type": "float",
+        "min": 0,
+        "max": 1,
+        "default": 0.75
+    },
+    {
+        "name": "camera_light_intensity",
+        "label": "Camera Light",
+        "type": "float",
+        "min": 0,
+        "max": 1,
+        "default": 0.75
+    },
+    {
+        "name": "sunlight_intensity",
+        "label": "Sunlight",
+        "type": "float",
+        "min": 0,
+        "max": 1,
+        "default": 0
+    }
+]

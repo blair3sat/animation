@@ -1,0 +1,14 @@
+{
+  "name": "earthcubesat",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "sass": "^1.17.2"
+  },
+  "dependencies": {
+    "three": "^0.102.1",
+    "three-orbitcontrols": "^2.102.1",
+    "three.interaction": "^0.2.2"
+  }
+}
